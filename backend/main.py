@@ -33,7 +33,7 @@ from config import (
     spacing_dict,
 )
 
-from routers import celldino, data_prep, spatiotemporal, gat, tracking, journey
+from routers import celldino, data_prep, spatiotemporal, gat, tracking, journey, upload
 
 
 # ---------------------------------------------------------
@@ -79,6 +79,7 @@ app.include_router(spatiotemporal.router)
 app.include_router(gat.router)
 app.include_router(tracking.router)
 app.include_router(journey.router)
+app.include_router(upload.router)
 
 
 # ---------------------------------------------------------
