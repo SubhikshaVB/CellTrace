@@ -587,6 +587,59 @@ class CellDINOEngine:
         pairs.sort(key=lambda d: d["similarity"], reverse=True)
         return {"movie_id": movie_id, "top_pairs": pairs[:top_k]}
 
+    def _must_load_npz(self, movie_id: str):
+        npz_path = self.embedding_dir / movie_id / "appearance_embeddings.npz"
+        if not npz_path.exists():
+            raise FileNotFoundError(f"No embeddings for '{movie_id}'. Run the encoder first.")
+        return np.load(npz_path)
+
+    def node_vector(self, movie_id: str, node_id: int) -> Dict[str, Any]:
+        """Full stored embedding vector for one node (Dive fingerprint)."""
+        data = self._must_load_npz(movie_id)
+        emb = np.asarray(data["embeddings"], dtype=np.float32)
+        node_ids = np.asarray(data["node_ids"])
+        where = np.where(node_ids == int(node_id))[0]
+        if len(where) == 0:
+            raise ValueError(f"Node {node_id} has no embedding in '{movie_id}'.")
+        vec = emb[int(where[0])].astype(float)
+        return {
+            "movie_id": movie_id,
+            "node_id": int(node_id),
+            "dim": int(vec.shape[0]),
+            "norm": float(np.linalg.norm(vec)),
+            "vector": vec.tolist(),
+        }
+
+    def node_neighbors(self, movie_id: str, node_id: int, k: int = 5) -> Dict[str, Any]:
+        """Top-k cosine neighbors of one node (Dive lookalikes)."""
+        data = self._must_load_npz(movie_id)
+        emb = np.asarray(data["embeddings"], dtype=np.float32)
+        node_ids = np.asarray(data["node_ids"])
+        track_ids = np.asarray(data["track_ids"]) if "track_ids" in data else node_ids
+        times = np.asarray(data["times"]) if "times" in data else np.zeros(len(node_ids))
+        where = np.where(node_ids == int(node_id))[0]
+        if len(where) == 0:
+            raise ValueError(f"Node {node_id} has no embedding in '{movie_id}'.")
+        i = int(where[0])
+        n = emb / (np.linalg.norm(emb, axis=1, keepdims=True) + 1e-12)
+        sims = n @ n[i]
+        sims[i] = -2.0
+        order = np.argsort(-sims, kind="stable")[: max(int(k), 1)]
+        return {
+            "movie_id": movie_id,
+            "node_id": int(node_id),
+            "k": int(k),
+            "neighbors": [
+                {
+                    "node_id": int(node_ids[j]),
+                    "track_id": int(track_ids[j]),
+                    "t": int(times[j]),
+                    "similarity": round(float(sims[j]), 4),
+                }
+                for j in order.tolist()
+            ],
+        }
+
     def status(self) -> Dict[str, Any]:
         return {
             "state": self.state.as_dict(),
@@ -611,6 +664,14 @@ def get_embedding_meta(movie_id: str) -> Dict[str, Any]:
 
 def similarity_preview(movie_id: str) -> Dict[str, Any]:
     return ENGINE.pairwise_similarity_preview(movie_id)
+
+
+def get_node_vector(movie_id: str, node_id: int) -> Dict[str, Any]:
+    return ENGINE.node_vector(movie_id, node_id)
+
+
+def node_neighbors(movie_id: str, node_id: int, k: int = 5) -> Dict[str, Any]:
+    return ENGINE.node_neighbors(movie_id, node_id, k)
 
 
 def module_status() -> Dict[str, Any]:

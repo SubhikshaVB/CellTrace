@@ -1,17 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
+import "./dive/stages.css";
 import { STAGES } from "./dive/stages";
 import TopBar from "./components/TopBar";
 import ProcessRail from "./components/ProcessRail";
 import Hero from "./components/Hero";
 import Specimen from "./stages/Specimen";
 import Validate from "./stages/Validate";
+import Extract from "./stages/Extract";
+import Standardize from "./stages/Standardize";
+import Embed from "./stages/Embed";
 import { DepthMeter, Say } from "./components/DiveBits";
 
 const COMING = {
-  s02: "A 3-D box is cropped around every annotated cell — the raw material for everything the networks will ever see.",
-  s03: "Percentile clipping + rescaling develops every patch like photographic film.",
-  s04: "The prototype encoder writes a fingerprint vector per cell — lookalikes land close together.",
   s05: "Each cell is wired to its K nearest neighbors — the social graph the GAT reasons over.",
   s06: "The GAT trains live, in front of you — loss falls while attention heads learn whom to trust.",
   s07: "Embeddings + graph + trained weights → frame-to-frame matches, each with an honest confidence.",
@@ -109,7 +110,6 @@ export default function App() {
     }
     setDiving(true);
     abortRef.current = false;
-    report("dive", "");
     for (const s of STAGES) {
       if (abortRef.current) break;
       if (autoRef.current) {
@@ -125,7 +125,7 @@ export default function App() {
       }
     }
     setDiving(false);
-  }, [diving, report]);
+  }, [diving]);
 
   return (
     <div className={talk ? "" : "talk-off"}>
@@ -145,17 +145,19 @@ export default function App() {
         <Hero movieId={movieId} diving={diving} onDive={dive} />
         <Specimen ctx={ctx} />
         <Validate ctx={ctx} />
-        {STAGES.slice(2).map((s) => (
+        <Extract ctx={ctx} />
+        <Standardize ctx={ctx} />
+        <Embed ctx={ctx} />
+        {STAGES.slice(5).map((s) => (
           <StageComing key={s.id} id={s.id} num={s.num} kicker={s.kicker} name={s.name} />
         ))}
         <footer className="exit">
           <div>
-            <div className="kicker">CELLTRACE · DIVE BUILD 1</div>
-            <h2>Shell + Specimen + Validate are live.</h2>
-            <p className="muted">Stages 02–08 land in the next builds — same shell, same rail.</p>
+            <div className="kicker">CELLTRACE · DIVE BUILD 2</div>
+            <h2>Stages 00–04 are live.</h2>
+            <p className="muted">Connect, Train, Track and Export land next — same shell, same rail.</p>
             <Say>
-              <b>Say:</b> “Two stages down, the pipeline already runs on your data — and the dive
-              keeps going.”
+              <b>Say:</b> “Half the pipeline already runs on your data — and the dive keeps going.”
             </Say>
           </div>
         </footer>

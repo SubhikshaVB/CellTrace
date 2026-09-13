@@ -1,0 +1,75 @@
+/* Stage widgets for the Dive (02–08). */
+.filelabel.inline { display: flex; gap: 12px; align-items: center; max-width: 1100px; margin-bottom: 16px; }
+.textin.num { width: 110px; margin-top: 0; }
+select.textin { margin-top: 6px; }
+.tag-proto {
+  display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
+  color: var(--acc2); border: 1px dashed var(--acc2); border-radius: 20px;
+  padding: 5px 12px; margin-bottom: 14px;
+}
+.sliderrow { display: flex; gap: 26px; flex-wrap: wrap; max-width: 1100px; margin-bottom: 16px; }
+.sliderrow label { flex: 1; min-width: 220px; font-family: var(--mono); font-size: 12px; color: var(--mut); }
+.sliderrow input[type="range"] { width: 100%; accent-color: var(--acc); }
+/* extract */
+.tiles { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.tile { aspect-ratio: 1; border-radius: 12px; border: 1px solid var(--line); position: relative; overflow: hidden; margin: 0; background: #04141c; }
+html[data-theme="surface"] .tile { background: #dff0e8; }
+.tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tile figcaption { position: absolute; bottom: 0; left: 0; right: 0; font-family: var(--mono); font-size: 9px; padding: 3px 6px; background: rgba(0, 0, 0, 0.55); color: #d9ffe9; }
+html[data-theme="surface"] .tile figcaption { background: rgba(255, 255, 255, 0.75); color: #0b3d2e; }
+.meter { display: flex; justify-content: space-between; gap: 10px; font-family: var(--mono); font-size: 12px; color: var(--mut); padding: 8px 0; border-bottom: 1px solid var(--line); }
+.meter b { color: var(--acc); text-align: right; }
+.meter b.tiny { font-size: 10px; word-break: break-all; }
+/* standardize */
+.wipe { position: relative; height: 300px; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: #000; cursor: ew-resize; touch-action: none; }
+.wipe-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.wipe-dev { position: absolute; inset: 0; }
+.wipe-dev img { width: 100%; height: 100%; object-fit: contain; }
+.wipe .knob { position: absolute; top: 0; bottom: 0; width: 3px; background: var(--acc2); transform: translateX(-50%); }
+.wipe .knob:after { content: "◂ ▸"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--acc2); color: #231600; font-size: 11px; padding: 6px 8px; border-radius: 20px; white-space: nowrap; }
+.wipe .cap { position: absolute; bottom: 10px; font-family: var(--mono); font-size: 11px; background: rgba(0, 0, 0, 0.55); color: #fff; padding: 4px 10px; border-radius: 8px; }
+.hist { display: flex; align-items: flex-end; gap: 2px; height: 64px; margin-top: 12px; }
+.hist i { flex: 1; background: var(--acc); opacity: 0.75; border-radius: 2px 2px 0 0; min-height: 2px; }
+.patchpair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.patchpair figure { margin: 0; }
+.patchpair img { width: 100%; border-radius: 10px; border: 1px solid var(--line); display: block; }
+.patchpair figcaption { font-family: var(--mono); font-size: 10px; color: var(--mut); margin-top: 4px; }
+/* embed */
+.bars { display: flex; align-items: flex-end; gap: 2px; height: 150px; padding: 10px 6px 0; overflow: hidden; }
+.bars i { flex: 1; background: linear-gradient(180deg, var(--acc), transparent); border-radius: 2px 2px 0 0; min-height: 4px; min-width: 1px; }
+.lrow { display: grid; grid-template-columns: 84px 1fr 60px; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 12px; }
+.lrow:last-child { border: 0; }
+.lbar { height: 8px; background: var(--chip); border-radius: 5px; overflow: hidden; }
+.lbar i { display: block; height: 100%; background: var(--acc2); }
+/* connect (05, wired next) */
+canvas.graphlive { width: 100%; height: 340px; display: block; background: rgba(0, 0, 0, 0.18); border-radius: 12px; }
+html[data-theme="surface"] canvas.graphlive { background: rgba(11, 60, 50, 0.06); }
+.legend { display: flex; gap: 14px; margin-top: 10px; font-family: var(--mono); font-size: 11px; color: var(--mut); flex-wrap: wrap; }
+.legend b { color: var(--acc); }
+/* train (06, wired next) */
+.curvebox svg { width: 100%; height: auto; display: block; }
+.arow { display: grid; grid-template-columns: 86px 1fr 60px; gap: 10px; align-items: center; padding: 6px 0; font-family: var(--mono); font-size: 11px; }
+.afill { height: 10px; background: var(--chip); border-radius: 6px; overflow: hidden; }
+.afill i { display: block; height: 100%; background: linear-gradient(90deg, var(--acc2), var(--acc)); }
+.lens { position: relative; height: 250px; }
+.orb { position: absolute; transform: translate(-50%, -50%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 10px; border: 2px solid var(--acc2); color: var(--ink); }
+.orb.q { width: 70px; height: 70px; border-color: var(--acc); box-shadow: 0 0 24px var(--acc); background: var(--acc-dim); font-weight: 800; font-size: 12px; }
+/* track (07, wired next) */
+canvas.tracklive { width: 100%; height: 360px; display: block; border-radius: 12px; background: rgba(0, 0, 0, 0.18); }
+html[data-theme="surface"] canvas.tracklive { background: rgba(11, 60, 50, 0.06); }
+.seg { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+.seg .btn.on { background: var(--acc); color: #03231a; }
+.gauge { text-align: center; }
+/* export (08, wired next) */
+.manifest { font-family: var(--mono); font-size: 12px; background: rgba(0, 0, 0, 0.25); border: 1px solid var(--line); border-radius: 12px; padding: 16px; white-space: pre; color: var(--ink); overflow-x: auto; max-height: 300px; overflow-y: auto; }
+html[data-theme="surface"] .manifest { background: rgba(11, 60, 50, 0.05); }
+.manifest .k { color: var(--acc); }
+.timeline { position: relative; margin-top: 6px; padding-left: 26px; }
+.timeline:before { content: ""; position: absolute; left: 8px; top: 6px; bottom: 6px; width: 2px; background: var(--line); }
+.tl { position: relative; padding: 10px 0; }
+.tl:before { content: ""; position: absolute; left: -24px; top: 16px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--acc2); }
+.tl b { display: block; font-size: 14px; }
+.tl span { font-size: 12px; color: var(--mut); }
+@media (max-width: 960px) {
+  .tiles { grid-template-columns: repeat(4, 1fr); }
+}

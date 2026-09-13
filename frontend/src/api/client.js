@@ -72,6 +72,10 @@ export const api = {
     req("/api/module1/train", { method: "POST", body: JSON.stringify(settings) }),
   cellDinoTrainingStatus: () => req("/api/module1/training-status"),
   embeddingSimilarity: (movie_id) => req(`/api/module1/similarity/${encodeURIComponent(movie_id)}`),
+  embeddingVector: (movie_id, node_id) =>
+    req(`/api/module1/vector/${encodeURIComponent(movie_id)}?node_id=${node_id}`),
+  embeddingNeighbors: (movie_id, node_id, k = 5) =>
+    req(`/api/module1/neighbors/${encodeURIComponent(movie_id)}?node_id=${node_id}&k=${k}`),
   runModule2: (movie_id) =>
     req("/api/module2/run", { method: "POST", body: JSON.stringify({ movie_id }) }),
   module2GraphPreview: (movie_id, focusNodeId = null) => {

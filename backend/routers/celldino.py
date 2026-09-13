@@ -120,3 +120,19 @@ def similarity(movie_id: str):
 @router.get("/status")
 def status():
     return m1.module_status()
+
+
+@router.get("/vector/{movie_id}")
+def vector(movie_id: str, node_id: int):
+    out = m1.safe_call(m1.get_node_vector, movie_id, node_id)
+    if not out["ok"]:
+        raise HTTPException(status_code=404, detail=out["error"])
+    return out
+
+
+@router.get("/neighbors/{movie_id}")
+def neighbors(movie_id: str, node_id: int, k: int = 5):
+    out = m1.safe_call(m1.node_neighbors, movie_id, node_id, k)
+    if not out["ok"]:
+        raise HTTPException(status_code=404, detail=out["error"])
+    return out
