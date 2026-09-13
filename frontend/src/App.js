@@ -10,30 +10,11 @@ import Validate from "./stages/Validate";
 import Extract from "./stages/Extract";
 import Standardize from "./stages/Standardize";
 import Embed from "./stages/Embed";
+import Connect from "./stages/Connect";
+import Train from "./stages/Train";
+import Track from "./stages/Track";
+import Export from "./stages/Export";
 import { DepthMeter, Say } from "./components/DiveBits";
-
-const COMING = {
-  s05: "Each cell is wired to its K nearest neighbors — the social graph the GAT reasons over.",
-  s06: "The GAT trains live, in front of you — loss falls while attention heads learn whom to trust.",
-  s07: "Embeddings + graph + trained weights → frame-to-frame matches, each with an honest confidence.",
-  s08: "Every run seals a manifest — data, parameters, metrics, weights. Then: the road ahead.",
-};
-
-function StageComing({ id, num, kicker, name }) {
-  return (
-    <section className="stage coming" id={id}>
-      <div className="ghost">{num}</div>
-      <div className="stage-head">
-        <div className="num">{kicker}</div>
-        <h2>{name}</h2>
-        <p>{COMING[id]}</p>
-        <div className="headrow">
-          <span className="status">○ landing next build</span>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -148,16 +129,18 @@ export default function App() {
         <Extract ctx={ctx} />
         <Standardize ctx={ctx} />
         <Embed ctx={ctx} />
-        {STAGES.slice(5).map((s) => (
-          <StageComing key={s.id} id={s.id} num={s.num} kicker={s.kicker} name={s.name} />
-        ))}
+        <Connect ctx={ctx} />
+        <Train ctx={ctx} />
+        <Track ctx={ctx} />
+        <Export ctx={ctx} />
         <footer className="exit">
           <div>
-            <div className="kicker">CELLTRACE · DIVE BUILD 2</div>
-            <h2>Stages 00–04 are live.</h2>
-            <p className="muted">Connect, Train, Track and Export land next — same shell, same rail.</p>
+            <div className="kicker">DIVE COMPLETE · 100 M</div>
+            <h2>You surfaced with the verdict.</h2>
+            <p className="muted">Every number above was computed live from your specimen.</p>
             <Say>
-              <b>Say:</b> “Half the pipeline already runs on your data — and the dive keeps going.”
+              <b>Say:</b> “From raw pixels to matched tracks — the whole pipeline, on real data, in
+              one dive.”
             </Say>
           </div>
         </footer>
