@@ -1,0 +1,36 @@
+/* Placeholder theme — full Dive design system lands with the stages. */
+:root {
+  --bg: #02070c;
+  --ink: #e9f5f1;
+  --acc: #3dff9e;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+.ct-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(61, 255, 158, 0.2);
+}
+.ct-brand {
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+.ct-note {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--acc);
+}
+.ct-main {
+  padding: 60px 8vw;
+}
+.ct-main code {
+  background: rgba(61, 255, 158, 0.12);
+  padding: 2px 8px;
+  border-radius: 6px;
+}

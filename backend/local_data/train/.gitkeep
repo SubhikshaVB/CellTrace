@@ -1,0 +1,3 @@
+# CellTrace — leave this directory empty in git.
+# Paste your Kaggle movie folders here (e.g. movie_0/, movie_1/, ...).
+# Expected per movie: *.zarr volume(s) and *.geff annotation graph(s).
