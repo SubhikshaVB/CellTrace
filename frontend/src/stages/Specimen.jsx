@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import api, { unwrap } from "../api/client";
 import { StageShell, fmtBytes } from "../components/DiveBits";
+import MoviePlayer from "../components/MoviePlayer";
+import DataStory from "../components/DataStory";
 
 const IDLE = { state: "idle", progress: 0, note: "○ waiting" };
 
@@ -14,6 +16,7 @@ export default function Specimen({ ctx }) {
   const [prog, setProg] = useState(0);
   const [note, setNote] = useState("");
   const [lastUp, setLastUp] = useState(null);
+  const [serverFiles, setServerFiles] = useState(null);
   const zarrInput = useRef(null);
   const geffInput = useRef(null);
 
@@ -96,6 +99,17 @@ export default function Specimen({ ctx }) {
     }
   };
 
+  const loadServerFiles = async () => {
+    try {
+      setServerFiles(unwrap(await api.trainContents()));
+    } catch (e) {
+      setNote(e.message);
+    }
+  };
+
+  const sel = datasets.find((d) => d.movie_id === movieId);
+  const incomplete = sel && (!sel.has_zarr || !sel.has_geff);
+
   return (
     <StageShell
       id="s00"
@@ -113,6 +127,16 @@ export default function Specimen({ ctx }) {
       onRun={() => run().catch((e) => setNote(e.message))}
       say="“Any embryo works — drop the two folders and the whole pipeline runs on your data.”"
     >
+      {incomplete && (
+        <div className="panel warn" style={{ maxWidth: 1100, marginBottom: 18 }}>
+          <h3>⚠ SPECIMEN INCOMPLETE · {movieId}</h3>
+          <p className="sub">
+            {!sel.has_zarr && "Missing the .zarr film reel. "}
+            {!sel.has_geff && "Missing the .geff annotation notes — the time-lapse, patches, graph and tracking all need it. "}
+            Upload the missing folder above (same movie name) to complete the pair.
+          </p>
+        </div>
+      )}
       <div className="grid g2">
         <div className="panel">
           <h3>YOUR DATA · FOLDERS ONLY</h3>
@@ -185,31 +209,61 @@ export default function Specimen({ ctx }) {
           )}
         </div>
         <div className="panel">
-          <h3>SPECIMEN VAULT</h3>
-          <p className="sub">Lab movies + your uploads. Click to select this dive's specimen.</p>
+          <h3>SPECIMEN VAULT · CLICK TO SWITCH MOVIES</h3>
+          <p className="sub">Lab movies + your uploads. Each movie keeps its own results — hop back and forth freely.</p>
           {datasets.length === 0 && <p className="muted">No movies found — upload folders or add vault data.</p>}
-          {datasets.map((d) => (
-            <div key={d.movie_id} className={`vrow${movieId === d.movie_id ? " sel" : ""}`}>
-              {registry[d.movie_id] && <span className="pill">UPLOADED</span>}
-              <span className="nm" onClick={() => selectMovie(d.movie_id)} role="button" tabIndex={0}
-                onKeyDown={(e) => e.key === "Enter" && selectMovie(d.movie_id)}>
-                {d.movie_id}
-              </span>
-              <span className="sz">
-                {d.has_zarr ? ".zarr ✓" : ".zarr ✗"} · {d.has_geff ? ".geff ✓" : ".geff ✗"}
-              </span>
-              {registry[d.movie_id] && (
-                <button type="button" className="btn sm" onClick={() => removeMovie(d.movie_id)}>
-                  ✕
-                </button>
-              )}
-            </div>
-          ))}
+          {datasets.map((d) => {
+            const inc = !d.has_zarr || !d.has_geff;
+            return (
+              <div key={d.movie_id} className={`vrow${movieId === d.movie_id ? " sel" : ""}`}>
+                {registry[d.movie_id] && <span className="pill">UPLOADED</span>}
+                {inc && <span className="pill warn">INCOMPLETE</span>}
+                <span className="nm" onClick={() => selectMovie(d.movie_id)} role="button" tabIndex={0}
+                  onKeyDown={(e) => e.key === "Enter" && selectMovie(d.movie_id)}>
+                  {d.movie_id}
+                </span>
+                <span className="sz">
+                  {d.has_zarr ? ".zarr ✓" : ".zarr ✗"} · {d.has_geff ? ".geff ✓" : ".geff ✗"}
+                </span>
+                {registry[d.movie_id] && (
+                  <button type="button" className="btn sm" onClick={() => removeMovie(d.movie_id)}>
+                    ✕
+                  </button>
+                )}
+              </div>
+            );
+          })}
           <div className="chips">
             <div className="chip">{datasets.length}<small>MOVIES</small></div>
             <div className="chip">{Object.keys(registry).length}<small>UPLOADED</small></div>
           </div>
         </div>
+      </div>
+
+      <div style={{ maxWidth: 1100, marginTop: 18 }}>
+        <MoviePlayer movieId={movieId} />
+      </div>
+      <div style={{ maxWidth: 1100, marginTop: 18 }}>
+        <DataStory movieId={movieId} />
+      </div>
+
+      <div className="panel" style={{ maxWidth: 1100, marginTop: 18 }}>
+        <h3>SERVER FILES · WHAT'S REALLY ON DISK</h3>
+        <p className="sub">Diagnostics: the exact folders the backend sees{serverFiles ? ` at ${serverFiles.root}` : ""}.</p>
+        {!serverFiles && (
+          <button type="button" className="btn sm" onClick={loadServerFiles}>INSPECT SERVER FOLDER</button>
+        )}
+        {serverFiles && (
+          <>
+            {(serverFiles.entries || []).map((e) => (
+              <div className="flag" key={e.name}>
+                <span className="fdot" style={{ background: e.has_zarr_json ? "var(--acc)" : "var(--acc2)" }} />
+                {e.name} · {e.is_dir ? "folder" : "file"} · {e.n_children} items · {e.has_zarr_json ? "zarr.json ✓" : "no zarr.json"}
+              </div>
+            ))}
+            {(serverFiles.entries || []).length === 0 && <p className="muted">Train folder is empty.</p>}
+          </>
+        )}
       </div>
     </StageShell>
   );

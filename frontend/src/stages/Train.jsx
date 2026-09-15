@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import api, { unwrap } from "../api/client";
-import { StageShell } from "../components/DiveBits";
+import { StageShell, loadSnap, saveSnap } from "../components/DiveBits";
 
 const IDLE = { state: "idle", progress: 0, note: "○ waiting" };
 
@@ -75,11 +75,21 @@ export default function Train({ ctx }) {
     register("s06", run);
   }, [register, run]);
 
+  if (res && res.movie_id === movieId) saveSnap("s06", movieId, { res, nodeId, att, st });
   useEffect(() => {
-    setRes(null);
-    setAtt(null);
-    setSt(IDLE);
-    report("s06", "");
+    const snap = loadSnap("s06", movieId);
+    if (snap && snap.res && snap.res.movie_id === movieId && snap.st.state === "done") {
+      setRes(snap.res);
+      setNodeId(snap.nodeId);
+      setAtt(snap.att);
+      setSt(snap.st);
+      report("s06", "done");
+    } else {
+      setRes(null);
+      setAtt(null);
+      setSt(IDLE);
+      report("s06", "");
+    }
   }, [movieId, report]);
 
   const hist = res?.training_history || [];

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import api, { unwrap } from "../api/client";
-import { StageShell } from "../components/DiveBits";
+import { StageShell, loadSnap, saveSnap } from "../components/DiveBits";
 
 const IDLE = { state: "idle", progress: 0, note: "○ waiting" };
 
@@ -132,11 +132,21 @@ export default function Connect({ ctx }) {
     register("s05", run);
   }, [register, run]);
 
+  if (res && res.movie_id === movieId) saveSnap("s05", movieId, { res, graph, focus, st });
   useEffect(() => {
-    setRes(null);
-    setGraph(null);
-    setSt(IDLE);
-    report("s05", "");
+    const snap = loadSnap("s05", movieId);
+    if (snap && snap.res && snap.res.movie_id === movieId && snap.st.state === "done") {
+      setRes(snap.res);
+      setGraph(snap.graph);
+      setFocus(snap.focus);
+      setSt(snap.st);
+      report("s05", "done");
+    } else {
+      setRes(null);
+      setGraph(null);
+      setSt(IDLE);
+      report("s05", "");
+    }
   }, [movieId, report]);
 
   return (

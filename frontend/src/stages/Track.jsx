@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import api, { unwrap } from "../api/client";
-import { StageShell } from "../components/DiveBits";
+import { StageShell, loadSnap, saveSnap } from "../components/DiveBits";
 
 const IDLE = { state: "idle", progress: 0, note: "○ waiting" };
 
@@ -115,12 +115,23 @@ export default function Track({ ctx }) {
     register("s07", runAll);
   }, [register, runAll]);
 
+  if (run && run.movie_id === movieId) saveSnap("s07", movieId, { fit, run, bundle, frame, st });
   useEffect(() => {
-    setFit(null);
-    setRun(null);
-    setBundle(null);
-    setSt(IDLE);
-    report("s07", "");
+    const snap = loadSnap("s07", movieId);
+    if (snap && snap.run && snap.run.movie_id === movieId && snap.st.state === "done") {
+      setFit(snap.fit);
+      setRun(snap.run);
+      setBundle(snap.bundle);
+      setFrame(snap.frame);
+      setSt(snap.st);
+      report("s07", "done");
+    } else {
+      setFit(null);
+      setRun(null);
+      setBundle(null);
+      setSt(IDLE);
+      report("s07", "");
+    }
   }, [movieId, report]);
 
   const frames = bundle?.frames || [];

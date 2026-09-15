@@ -55,3 +55,15 @@ export function StageShell({
     </section>
   );
 }
+
+// Per-movie result memory: switching specimens restores each movie's last
+// results instead of wiping them. Keyed snapshots, no React state inside.
+const MOVIE_CACHE = new Map();
+export function saveSnap(stage, mid, snap) {
+  if (!mid || !snap) return;
+  if (!MOVIE_CACHE.has(stage)) MOVIE_CACHE.set(stage, new Map());
+  MOVIE_CACHE.get(stage).set(mid, snap);
+}
+export function loadSnap(stage, mid) {
+  return (MOVIE_CACHE.get(stage)?.get(mid) || null);
+}

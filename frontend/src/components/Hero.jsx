@@ -311,7 +311,18 @@ export default function Hero({ movieId, diving, onDive }) {
           </button>
           <button type="button" className="btn" onClick={goSpecimen}>◎ CHOOSE SPECIMEN</button>
         </div>
-        {err && <p className="err-text">{err}</p>}
+        {err && (
+          <div className="panel" style={{ maxWidth: 640, borderColor: "var(--acc2)" }}>
+            <h3>SPECIMEN INCOMPLETE — TIME-LAPSE UNAVAILABLE</h3>
+            <p className="sub">{err}</p>
+            <p className="sub">
+              The living-embryo movie needs the <b>.geff</b> annotation folder next to the{" "}
+              <b>.zarr</b> film reel. Upload the missing folder in Stage 00 (same movie name) or
+              pick a complete movie, and the time-lapse will play.
+            </p>
+            <button type="button" className="btn" onClick={goSpecimen}>◎ OPEN STAGE 00</button>
+          </div>
+        )}
         {!movieId && <p className="muted">↑ Pick a specimen in Stage 00 to summon the embryo.</p>}
         {movieId && !cloud && !err && <p className="muted">Summoning the embryo…</p>}
         {cloud && <Observatory cloud={cloud} />}

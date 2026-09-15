@@ -73,3 +73,16 @@ html[data-theme="surface"] .manifest { background: rgba(11, 60, 50, 0.05); }
 @media (max-width: 960px) {
   .tiles { grid-template-columns: repeat(4, 1fr); }
 }
+/* specimen cinema + data story (build 4) */
+.panel.warn { border-color: var(--acc2); }
+.pill.warn { background: rgba(255,194,77,.14); color: var(--acc2); border-color: var(--acc2); }
+.cinema-stage { position: relative; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: #000; }
+.cinema-img { width: 100%; display: block; }
+.cinema-orbs { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.cinema-badge { position: absolute; top: 10px; left: 10px; font-family: var(--mono); font-size: 12px; background: rgba(0,0,0,.6); color: #fff; padding: 4px 12px; border-radius: 8px; }
+.cinema-controls { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+.cinema-controls input[type="range"] { flex: 1; accent-color: var(--acc); }
+.checkline { display: flex !important; gap: 8px !important; align-items: center !important; font-family: var(--mono); font-size: 12px; color: var(--ink) !important; }
+.checkline input { width: 18px; height: 18px; accent-color: var(--acc); }
+.stories { width: 100%; height: auto; display: block; }
+.image-placeholder { padding: 60px 20px; text-align: center; color: var(--mut); font-family: var(--mono); }

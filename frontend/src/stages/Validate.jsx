@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import api, { unwrap } from "../api/client";
-import { StageShell } from "../components/DiveBits";
+import { StageShell, loadSnap, saveSnap } from "../components/DiveBits";
 
 const IDLE = { state: "idle", progress: 0, note: "○ waiting" };
 
@@ -35,10 +35,18 @@ export default function Validate({ ctx }) {
     register("s01", run);
   }, [register, run]);
 
+  if (rep && rep.movie_id === movieId) saveSnap("s01", movieId, { res: rep, st });
   useEffect(() => {
-    setRep(null);
-    setSt(IDLE);
-    report("s01", "");
+    const snap = loadSnap("s01", movieId);
+    if (snap && snap.res && snap.res.movie_id === movieId && snap.st.state === "done") {
+      setRep(snap.res);
+      setSt(snap.st);
+      report("s01", "done");
+    } else {
+      setRep(null);
+      setSt(IDLE);
+      report("s01", "");
+    }
   }, [movieId, report]);
 
   const c = rep?.checks || {};

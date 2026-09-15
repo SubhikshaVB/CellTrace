@@ -48,3 +48,8 @@ def delete_movie(movie_id: str = Query(...)):
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     return {"ok": True, "result": result}
+
+
+@router.get("/train-contents")
+def train_contents():
+    return {"ok": True, "result": up.train_contents()}

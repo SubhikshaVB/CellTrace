@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import api, { unwrap } from "../api/client";
-import { StageShell } from "../components/DiveBits";
+import { StageShell, loadSnap, saveSnap } from "../components/DiveBits";
 
 const IDLE = { state: "idle", progress: 0, note: "○ waiting" };
 
@@ -55,11 +55,20 @@ export default function Export({ ctx }) {
     register("s08", run);
   }, [register, run]);
 
+  if (manifest && manifest.movie_id === movieId) saveSnap("s08", movieId, { rows, manifest, st });
   useEffect(() => {
-    setRows([]);
-    setManifest(null);
-    setSt(IDLE);
-    report("s08", "");
+    const snap = loadSnap("s08", movieId);
+    if (snap && snap.manifest && snap.manifest.movie_id === movieId && snap.st.state === "done") {
+      setRows(snap.rows);
+      setManifest(snap.manifest);
+      setSt(snap.st);
+      report("s08", "done");
+    } else {
+      setRows([]);
+      setManifest(null);
+      setSt(IDLE);
+      report("s08", "");
+    }
   }, [movieId, report]);
 
   const download = () => {

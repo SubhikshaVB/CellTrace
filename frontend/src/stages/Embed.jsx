@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import api, { unwrap } from "../api/client";
-import { StageShell } from "../components/DiveBits";
+import { StageShell, loadSnap, saveSnap } from "../components/DiveBits";
 
 const IDLE = { state: "idle", progress: 0, note: "○ waiting" };
 
@@ -66,14 +66,26 @@ export default function Embed({ ctx }) {
     register("s04", run);
   }, [register, run]);
 
+  if (meta && meta.movie_id === movieId) saveSnap("s04", movieId, { meta, tens, vec, nbrs, nodeId, st });
   useEffect(() => {
-    setMeta(null);
-    setTens(null);
-    setVec(null);
-    setNbrs(null);
-    setNodeId(null);
-    setSt(IDLE);
-    report("s04", "");
+    const snap = loadSnap("s04", movieId);
+    if (snap && snap.meta && snap.meta.movie_id === movieId && snap.st.state === "done") {
+      setMeta(snap.meta);
+      setTens(snap.tens);
+      setVec(snap.vec);
+      setNbrs(snap.nbrs);
+      setNodeId(snap.nodeId);
+      setSt(snap.st);
+      report("s04", "done");
+    } else {
+      setMeta(null);
+      setTens(null);
+      setVec(null);
+      setNbrs(null);
+      setNodeId(null);
+      setSt(IDLE);
+      report("s04", "");
+    }
   }, [movieId, report]);
 
   const pick = (nid) => {

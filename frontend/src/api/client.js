@@ -101,6 +101,7 @@ export const api = {
   uploadGeff: (movieName, files, onProgress) => uploadFolder("geff", movieName, files, onProgress),
   uploadRegistry: () => req("/api/upload/registry"),
   deleteMovie: (movie_id) => req(`/api/upload/movie?movie_id=${encodeURIComponent(movie_id)}`, { method: "DELETE" }),
+  trainContents: () => req("/api/upload/train-contents"),
 };
 
 export default api;

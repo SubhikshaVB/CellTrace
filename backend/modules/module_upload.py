@@ -244,3 +244,25 @@ def delete_movie(movie_id: str) -> Dict[str, Any]:
     registry.pop(movie_id, None)
     _save_registry(registry)
     return {"movie_id": movie_id, "removed": removed}
+
+
+def train_contents() -> Dict[str, Any]:
+    """Real listing of the server train directory (diagnostics, fast)."""
+    _ensure_dirs()
+    entries = []
+    for p in sorted(LOCAL_DATA_ROOT.iterdir(), key=lambda x: x.name.lower()):
+        if p.name.startswith("."):
+            continue
+        n_children = 0
+        if p.is_dir():
+            try:
+                n_children = sum(1 for _ in p.iterdir())
+            except OSError:
+                n_children = -1
+        entries.append({
+            "name": p.name,
+            "is_dir": p.is_dir(),
+            "has_zarr_json": (p / "zarr.json").exists() if p.is_dir() else False,
+            "n_children": n_children,
+        })
+    return {"root": str(LOCAL_DATA_ROOT), "entries": entries}

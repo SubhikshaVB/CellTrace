@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import api, { unwrap } from "../api/client";
-import { StageShell } from "../components/DiveBits";
+import { StageShell, loadSnap, saveSnap } from "../components/DiveBits";
 
 const IDLE = { state: "idle", progress: 0, note: "○ waiting" };
 
@@ -67,10 +67,18 @@ export default function Standardize({ ctx }) {
     register("s03", run);
   }, [register, run]);
 
+  if (res && res.movie_id === movieId) saveSnap("s03", movieId, { res, st });
   useEffect(() => {
-    setRes(null);
-    setSt(IDLE);
-    report("s03", "");
+    const snap = loadSnap("s03", movieId);
+    if (snap && snap.res && snap.res.movie_id === movieId && snap.st.state === "done") {
+      setRes(snap.res);
+      setSt(snap.st);
+      report("s03", "done");
+    } else {
+      setRes(null);
+      setSt(IDLE);
+      report("s03", "");
+    }
   }, [movieId, report]);
 
   const hist = res?.histogram || [];
