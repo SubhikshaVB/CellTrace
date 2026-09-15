@@ -266,6 +266,7 @@ class EmbeddingBatchResult:
     inf_count: int = 0
     mean_norm: float = 0.0
     backend: str = "torch"
+    weights_source: str = "random-init"
     elapsed_sec: float = 0.0
     preview: List[Dict[str, Any]] = field(default_factory=list)
 
@@ -302,17 +303,49 @@ class CellDINOEngine:
         self.batch_size = batch_size
         self.state = Module1State()
         self.backend = "torch" if TORCH_OK else "numpy"
+        self.weights_source = "numpy-fallback"
         self.device = device
         self.model = None
         self.fallback = NumpyCellDINOFallback(embed_dim=embed_dim)
         if TORCH_OK:
             if device == "cuda" and not torch.cuda.is_available():
                 self.device = "cpu"
+            torch.manual_seed(17)  # deterministic init; matches numpy fallback seed
             self.model = CellDINOEncoder(embed_dim=embed_dim)
+            self.weights_source = self._load_trained_checkpoint()
             self.model.to(self.device)
             self.model.eval()
 
     # ------------------------------------------------------------------
+    def _load_trained_checkpoint(self) -> str:
+        """Load the newest trained encoder if present. Returns a source tag."""
+        if not TORCH_OK or self.model is None:
+            return "numpy-fallback"
+        from config import ARTIFACTS_ROOT  # local import: mirrors module1_training.MODEL_DIR
+        model_dir = ARTIFACTS_ROOT / "models"
+        try:
+            ckpts = sorted(model_dir.glob("celldino_dino_*.pt"), key=lambda p: p.stat().st_mtime)
+        except OSError:
+            ckpts = []
+        if not ckpts:
+            return "random-init"
+        ckpt_path = ckpts[-1]
+        try:
+            ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
+            try:
+                self.model.load_state_dict(ckpt["encoder_state_dict"], strict=True)
+                note = ""
+            except RuntimeError:
+                missing, unexpected = self.model.load_state_dict(ckpt["encoder_state_dict"], strict=False)
+                note = f" (partial: {len(missing)} missing, {len(unexpected)} unexpected)"
+            self.model.eval()
+        except Exception as exc:  # corrupt/foreign file: keep random init, loudly
+            LOGGER.warning("CellDINO checkpoint %s unusable (%s); using random init", ckpt_path.name, exc)
+            return "random-init"
+        src = f"trained:{ckpt_path.name}{note}"
+        LOGGER.info("CellDINO loaded %s", src)
+        return src
+
     # Tensor loading (Module 0 artifacts only)
     # ------------------------------------------------------------------
     def resolve_tensor_bundle(self, movie_id: str) -> Dict[str, Any]:
@@ -544,6 +577,7 @@ class CellDINOEngine:
             elapsed_sec=float(elapsed),
             preview=preview,
         )
+        result.weights_source = self.weights_source
         return result
 
     def load_embeddings(self, movie_id: str) -> Dict[str, Any]:

@@ -6,7 +6,8 @@ zarr>=2.16.0
 Pillow>=10.0.0
 pydantic>=2.5.0
 python-multipart>=0.0.6
-torch>=2.1.0
+torch==2.4.1  # pinned: newest wheels trip Win App-Control (4551); CPU wheel preferred:
+# pip install torch==2.4.1 --index-url https://download.pytorch.org/whl/cpu
 scikit-image>=0.22.0
 tqdm>=4.66.0
 aiofiles>=23.2.0

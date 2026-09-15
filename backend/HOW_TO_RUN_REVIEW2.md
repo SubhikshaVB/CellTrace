@@ -37,6 +37,20 @@ Verifies the new math (KNN same-frame-only, GT pair labelling, GAT forward,
 contrastive loss direction, softmax weights, Hungarian). These are software
 tests only — their numbers never enter any report.
 
+## 2.5. Train the encoder (once, ~minutes on CPU)
+
+```bat
+python -c "from modules.module1_training import train_self_supervised; print(train_self_supervised())"
+```
+
+Defaults: 4 epochs, CPU-friendly. Confirm
+`backend/artifacts/models/celldino_dino_1movies_seed42.pt` appears.
+The encoder loader reads this file at backend startup — so **restart
+uvicorn after training** and watch for `CellDINO loaded trained:...`.
+(`run_pipeline.py` picks it up automatically: fresh process per run.)
+Skip this step and Module 1 uses seeded random-init instead; every run
+states its `weights_source`, so always quote it.
+
 ## 3. Full pipeline — one command
 
 ```bat
@@ -46,6 +60,8 @@ python run_pipeline.py --movies <movieA> <movieB> --val <movieC> --epochs 50
 - `--movies`: 1+ train movies. `--val`: optional held-out movies (movie-level validation).
 - `--epochs`: GAT contrastive epochs (use 10–20 for a quick check, 50 for the review).
 - `--max-cells N`: optional cap for a fast trial run (e.g. 256).
+
+Run section 2.5 first so Module 1 uses trained weights.
 
 What it runs: Module 0 (validate+tensors) → Module 1 (appearance) →
 Module 2 (fusion) → Module 3 (contrastive GAT, movie-level if `--val` given) →
@@ -66,7 +82,8 @@ uvicorn main:app --reload --port 8000
 
 - Docs: http://127.0.0.1:8000/docs
 - Health: http://127.0.0.1:8000/api/health
-- New: `POST /api/module4/run` (`{"movie_id": ...}`),
+- New: `POST /api/module1/train` (DINO encoder training) +
+  `GET /api/module1/training-status`, `POST /api/module4/run` (`{"movie_id": ...}`),
   `POST /api/module4/fit-weights` (`{"train_movie_ids": [...]}`),
   `GET /api/module4/status`
 
@@ -99,11 +116,11 @@ How to prove "real, not made up" in your review:
 
 ## 6. Honest-labelling checklist (for your report/PPT)
 
-- Module 1 encoder = **prototype (untrained)** unless you ran
-  `module1_training.train_self_supervised` — say which one you ran.
+- Module 1 encoder = **trained prototype** if you ran section 2.5
+  (check `weights_source: trained:...`), else seeded random-init.
 - Module 3 = **trained** (contrastive, this review) — cite loss curves.
-- Module 4 weights = fitted (BCE on train movies) or uniform prior —
-  the summary file states the source explicitly.
+- Module 4 weights = fitted (BCE on train movies; now actually loaded
+  into the run) or uniform prior — the summary states the source.
 - Tracking = **first half only** (matching + confidence). Thresholding,
   trajectory stitching, division/lineage, MOTA/MOTP → Review 3.
 

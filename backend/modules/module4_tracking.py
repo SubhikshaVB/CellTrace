@@ -237,7 +237,7 @@ def fit_weights(train_movie_ids: Sequence[str],
         wv = w.detach().cpu().numpy()
     weights = {g: round(float(v), 4) for g, v in zip(TRACK_GROUP_NAMES, wv)}
     Path(TRACK_DIR).mkdir(parents=True, exist_ok=True)
-    torch.save({"weights": wv.astype(np.float32), "bias": float(b.detach().cpu()),
+    torch.save({"weights": torch.from_numpy(wv.astype(np.float32)), "bias": float(b.detach().cpu()),
                 "train_movies": list(train_movie_ids), "history": hist,
                 "per_movie": per_movie}, weights_path())
     return {"status": "complete", "train_movies": list(train_movie_ids),
